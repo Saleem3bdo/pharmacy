@@ -17,7 +17,7 @@ import { Badge } from './ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 import { Alert, AlertDescription } from './ui/alert';
 import { useLocalization, useRTL } from './services/LocalizationService';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 
 interface Permission {
   id: string;

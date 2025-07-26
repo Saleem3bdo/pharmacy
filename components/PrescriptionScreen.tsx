@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { useLocalization, useRTL } from './services/LocalizationService';
 import { OCRService } from './services/OCRService';
 import PermissionManager from './PermissionManager';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 
 export default function PrescriptionScreen({ navigateTo }) {
   const { t, language } = useLocalization();

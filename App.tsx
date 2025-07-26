@@ -8,7 +8,7 @@ import { InventoryProvider } from './components/services/InventoryService';
 import { DeliveryProvider } from './components/services/DeliveryService';
 import { LocalizationProvider, useLocalization, useRTL } from './components/services/LocalizationService';
 import ErrorBoundary from './components/ErrorBoundary';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 
 // Import patient portal components
 import OnboardingScreen from './components/OnboardingScreen';
