@@ -12,7 +12,7 @@ import { Progress } from '../ui/progress';
 import { Separator } from '../ui/separator';
 import { Alert, AlertDescription } from '../ui/alert';
 import { useLocalization, sudanesePharmaceuticalData, useRTL } from '../services/LocalizationService';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 
 export default function PharmacistDrugUpload({ navigateTo }) {
   const { t, language } = useLocalization();

@@ -1,20 +1,23 @@
 import React, { useState } from 'react';
 import { 
+  ArrowLeft, 
   TrendingUp, 
   TrendingDown, 
-  DollarSign, 
-  Package, 
   Users, 
-  FileText, 
+  Package, 
+  DollarSign,
   Calendar,
   Download,
   Filter,
+  RefreshCw,
   BarChart3,
-  PieChart,
+  PieChart as PieChartIcon,
   Activity,
-  AlertTriangle,
+  Target,
+  AlertCircle,
   CheckCircle,
   Clock,
+  Sparkles, 
   MapPin
 } from 'lucide-react';
 import { Card } from '../ui/card';
@@ -22,467 +25,254 @@ import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { 
-  LineChart, 
-  Line, 
-  AreaChart, 
-  Area, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  PieChart as RechartsPieChart,
-  Cell,
-  Legend
-} from 'recharts';
+import { View, Text, ScrollView, Dimensions } from 'react-native';
 import { useLocalization, sudanesePharmaceuticalData, useRTL } from '../services/LocalizationService';
+
+// Get screen dimensions for charts
+const screenWidth = Dimensions.get('window').width;
 
 // Mock analytics data with Sudanese context
 const generateAnalyticsData = () => {
   const currentDate = new Date();
-  const last7Days = Array.from({ length: 7 }, (_, i) => {
-    const date = new Date(currentDate);
-    date.setDate(date.getDate() - (6 - i));
-    return {
-      date: date.toISOString().split('T')[0],
-      day: date.toLocaleDateString('ar-SD', { weekday: 'short' }),
-      dayEn: date.toLocaleDateString('en-US', { weekday: 'short' }),
-      sales: Math.floor(Math.random() * 50000) + 20000,
-      orders: Math.floor(Math.random() * 100) + 50,
-      customers: Math.floor(Math.random() * 80) + 30,
-      prescriptions: Math.floor(Math.random() * 40) + 20
-    };
-  });
-
-  const last30Days = Array.from({ length: 30 }, (_, i) => {
-    const date = new Date(currentDate);
-    date.setDate(date.getDate() - (29 - i));
-    return {
-      date: date.toISOString().split('T')[0],
-      sales: Math.floor(Math.random() * 45000) + 25000,
-      orders: Math.floor(Math.random() * 90) + 60
-    };
-  });
-
-  const topProducts = sudanesePharmaceuticalData.commonMedicines.map(medicine => ({
-    ...medicine,
-    soldQuantity: Math.floor(Math.random() * 200) + 50,
-    revenue: (Math.floor(Math.random() * 200) + 50) * medicine.price,
-    growth: (Math.random() - 0.5) * 40 // -20% to +20%
-  })).sort((a, b) => b.soldQuantity - a.soldQuantity).slice(0, 6);
-
-  const categoryData = [
-    { name: 'أدوية الألم', nameEn: 'Pain Relief', value: 35, revenue: 450000 },
-    { name: 'الفيتامينات', nameEn: 'Vitamins', value: 25, revenue: 320000 },
-    { name: 'المضادات الحيوية', nameEn: 'Antibiotics', value: 20, revenue: 280000 },
-    { name: 'أدوية الملاريا', nameEn: 'Anti-Malarial', value: 15, revenue: 200000 },
-    { name: 'أخرى', nameEn: 'Others', value: 5, revenue: 80000 }
-  ];
-
-  const pharmacyLocations = [
-    { name: 'الصيدلية المركزية - الخرطوم', sales: 850000, orders: 1250, growth: 12.5 },
-    { name: 'صيدلية النيل - أم درمان', sales: 720000, orders: 980, growth: 8.3 },
-    { name: 'صيدلية الصحة - بحري', sales: 640000, orders: 850, growth: -2.1 },
-    { name: 'صيدلية العافية - الكوبرا', sales: 580000, orders: 760, growth: 15.7 }
-  ];
-
+  
   return {
-    last7Days,
-    last30Days,
-    topProducts,
-    categoryData,
-    pharmacyLocations,
-    summary: {
-      totalRevenue: 2890000,
-      totalOrders: 4840,
-      totalCustomers: 1520,
-      totalPrescriptions: 890,
-      growthRate: 12.5,
-      averageOrderValue: 597,
-      customerSatisfaction: 4.7,
-      prescriptionAccuracy: 98.5
-    }
+    overview: {
+      totalRevenue: 125000,
+      totalOrders: 1847,
+      totalCustomers: 423,
+      averageOrderValue: 67.5,
+      growthRate: 15.8,
+      inventoryValue: 450000
+    },
+    monthlyTrends: [
+      { month: 'يناير', revenue: 89000, orders: 234, customers: 89 },
+      { month: 'فبراير', revenue: 102000, orders: 278, customers: 102 },
+      { month: 'مارس', revenue: 118000, orders: 312, customers: 118 },
+      { month: 'أبريل', revenue: 125000, orders: 347, customers: 134 },
+      { month: 'مايو', revenue: 134000, orders: 389, customers: 156 },
+      { month: 'يونيو', revenue: 142000, orders: 423, customers: 178 }
+    ],
+    topProducts: [
+      { name: 'أدوية الضغط', revenue: 45000, quantity: 234, margin: 23 },
+      { name: 'أدوية السكري', revenue: 38000, quantity: 189, margin: 28 },
+      { name: 'المضادات الحيوية', revenue: 32000, quantity: 156, margin: 18 },
+      { name: 'المسكنات', revenue: 28000, quantity: 234, margin: 15 },
+      { name: 'فيتامينات', revenue: 25000, quantity: 187, margin: 35 }
+    ],
+    customerSegments: [
+      { segment: 'مرضى مزمنون', count: 180, percentage: 42.6, value: 'high' },
+      { segment: 'عملاء عاديون', count: 156, percentage: 36.9, value: 'medium' },
+      { segment: 'عملاء جدد', count: 87, percentage: 20.6, value: 'low' }
+    ]
   };
 };
-
-const COLORS = ['#2d7d6b', '#22c55e', '#34d399', '#6ee7b7', '#86efac', '#a7f3d0'];
 
 export default function PharmacistAnalytics({ navigateTo }) {
   const { t, language } = useLocalization();
   const { isRTL, getMargin } = useRTL();
-  const [selectedPeriod, setSelectedPeriod] = useState('7days');
-  const [selectedMetric, setSelectedMetric] = useState('revenue');
-  const [analyticsData] = useState(generateAnalyticsData());
+  const [selectedPeriod, setSelectedPeriod] = useState('month');
+  const [activeTab, setActiveTab] = useState('overview');
 
-  const periods = [
-    { value: '7days', label: language === 'ar' ? '7 أيام' : '7 Days' },
-    { value: '30days', label: language === 'ar' ? '30 يوم' : '30 Days' },
-    { value: '3months', label: language === 'ar' ? '3 أشهر' : '3 Months' },
-    { value: '1year', label: language === 'ar' ? 'سنة' : '1 Year' }
-  ];
-
-  const metrics = [
-    { value: 'revenue', label: t('analytics.revenue'), icon: DollarSign },
-    { value: 'orders', label: t('analytics.orders'), icon: Package },
-    { value: 'customers', label: t('analytics.customers'), icon: Users },
-    { value: 'prescriptions', label: t('analytics.prescriptions'), icon: FileText }
-  ];
-
-  const getCurrentData = () => {
-    return selectedPeriod === '7days' ? analyticsData.last7Days : analyticsData.last30Days;
-  };
+  const analytics = generateAnalyticsData();
 
   const formatCurrency = (amount) => {
-    return `${amount.toLocaleString('ar-SD')} ${t('unit.sdg')}`;
+    return `${amount.toLocaleString()} ج.س`;
   };
 
-  const formatNumber = (num) => {
-    return num.toLocaleString(language === 'ar' ? 'ar-SD' : 'en-US');
+  const formatPercentage = (value) => {
+    return `${value > 0 ? '+' : ''}${value}%`;
   };
 
-  const exportReport = () => {
-    // Mock export functionality
-    const reportData = {
-      period: selectedPeriod,
-      generatedAt: new Date().toISOString(),
-      summary: analyticsData.summary,
-      data: getCurrentData()
-    };
-    
-    const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `pharmacy-analytics-${selectedPeriod}-${Date.now()}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  return (
-    <div className="h-full overflow-y-auto bg-background p-4 space-y-6">
-      {/* Header */}
+  // Simple metric card component
+  const MetricCard = ({ title, value, change, icon: Icon, trend }) => (
+    <Card className="p-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-primary">{t('analytics.title')}</h1>
-          <p className="text-sm text-muted-foreground">
-            {language === 'ar' ? 'تحليل شامل لأداء الصيدلية' : 'Comprehensive pharmacy performance analysis'}
-          </p>
+          <p className="text-sm font-medium text-muted-foreground">{title}</p>
+          <h3 className="text-2xl font-bold">{value}</h3>
+          {change && (
+            <div className={`flex items-center gap-1 text-sm ${trend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
+              {trend === 'up' ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
+              <span>{change}</span>
+            </div>
+          )}
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="p-3 bg-primary/10 rounded-lg">
+          <Icon className="w-6 h-6 text-primary" />
+        </div>
+      </div>
+    </Card>
+  );
+
+  return (
+    <ScrollView className="flex-1 bg-background" style={{ direction: isRTL ? 'rtl' : 'ltr' }}>
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 border-b">
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="sm" onPress={() => navigateTo('pharmacist-dashboard')}>
+            <ArrowLeft className="w-4 h-4" />
+          </Button>
+          <div>
+            <h1 className="text-xl font-bold">{t('تحليلات الصيدلية')}</h1>
+            <p className="text-sm text-muted-foreground">{t('تقارير شاملة حول أداء الصيدلية')}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
           <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
             <SelectTrigger className="w-32">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {periods.map(period => (
-                <SelectItem key={period.value} value={period.value}>
-                  {period.label}
-                </SelectItem>
-              ))}
+              <SelectItem value="week">{t('أسبوعي')}</SelectItem>
+              <SelectItem value="month">{t('شهري')}</SelectItem>
+              <SelectItem value="quarter">{t('ربعي')}</SelectItem>
+              <SelectItem value="year">{t('سنوي')}</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline" onClick={exportReport}>
-            <Download size={16} className={getMargin('0', '1')} />
-            {t('analytics.export')}
+          <Button variant="outline" size="sm">
+            <Download className="w-4 h-4" />
+            {t('تصدير')}
           </Button>
         </div>
       </div>
 
-      {/* Key Metrics Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">{t('analytics.totalOrders')}</p>
-              <p className="text-2xl font-bold arabic-numbers">{formatNumber(analyticsData.summary.totalOrders)}</p>
-              <div className="flex items-center mt-1">
-                <TrendingUp size={12} className="text-success mr-1" />
-                <span className="text-xs text-success arabic-numbers">+{analyticsData.summary.growthRate}%</span>
-              </div>
-            </div>
-            <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-              <Package size={20} className="text-primary" />
-            </div>
-          </div>
-        </Card>
+      {/* Content */}
+      <div className="p-4">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="overview">{t('نظرة عامة')}</TabsTrigger>
+            <TabsTrigger value="revenue">{t('الإيرادات')}</TabsTrigger>
+            <TabsTrigger value="products">{t('المنتجات')}</TabsTrigger>
+            <TabsTrigger value="customers">{t('العملاء')}</TabsTrigger>
+          </TabsList>
 
-        <Card className="p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">{t('analytics.revenue')}</p>
-              <p className="text-xl font-bold arabic-numbers">{formatCurrency(analyticsData.summary.totalRevenue)}</p>
-              <div className="flex items-center mt-1">
-                <TrendingUp size={12} className="text-success mr-1" />
-                <span className="text-xs text-success arabic-numbers">+12.3%</span>
-              </div>
+          <TabsContent value="overview" className="space-y-6">
+            {/* Key Metrics */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <MetricCard
+                title={t('إجمالي الإيرادات')}
+                value={formatCurrency(analytics.overview.totalRevenue)}
+                change={formatPercentage(analytics.overview.growthRate)}
+                icon={DollarSign}
+                trend="up"
+              />
+              <MetricCard
+                title={t('إجمالي الطلبات')}
+                value={analytics.overview.totalOrders.toLocaleString()}
+                change={formatPercentage(12.3)}
+                icon={Package}
+                trend="up"
+              />
+              <MetricCard
+                title={t('إجمالي العملاء')}
+                value={analytics.overview.totalCustomers.toLocaleString()}
+                change={formatPercentage(8.7)}
+                icon={Users}
+                trend="up"
+              />
+              <MetricCard
+                title={t('متوسط قيمة الطلب')}
+                value={formatCurrency(analytics.overview.averageOrderValue)}
+                change={formatPercentage(5.2)}
+                icon={TrendingUp}
+                trend="up"
+              />
+              <MetricCard
+                title={t('قيمة المخزون')}
+                value={formatCurrency(analytics.overview.inventoryValue)}
+                change={formatPercentage(-2.1)}
+                icon={Package}
+                trend="down"
+              />
+              <MetricCard
+                title={t('معدل النمو')}
+                value={formatPercentage(analytics.overview.growthRate)}
+                icon={Activity}
+              />
             </div>
-            <div className="w-10 h-10 bg-success/10 rounded-lg flex items-center justify-center">
-              <DollarSign size={20} className="text-success" />
-            </div>
-          </div>
-        </Card>
 
-        <Card className="p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">{t('analytics.customers')}</p>
-              <p className="text-2xl font-bold arabic-numbers">{formatNumber(analyticsData.summary.totalCustomers)}</p>
-              <div className="flex items-center mt-1">
-                <TrendingUp size={12} className="text-info mr-1" />
-                <span className="text-xs text-info arabic-numbers">+8.7%</span>
-              </div>
-            </div>
-            <div className="w-10 h-10 bg-info/10 rounded-lg flex items-center justify-center">
-              <Users size={20} className="text-info" />
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">{t('analytics.prescriptions')}</p>
-              <p className="text-2xl font-bold arabic-numbers">{formatNumber(analyticsData.summary.totalPrescriptions)}</p>
-              <div className="flex items-center mt-1">
-                <CheckCircle size={12} className="text-primary mr-1" />
-                <span className="text-xs text-primary arabic-numbers">98.5%</span>
-              </div>
-            </div>
-            <div className="w-10 h-10 bg-warning/10 rounded-lg flex items-center justify-center">
-              <FileText size={20} className="text-warning" />
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      {/* Main Analytics Content */}
-      <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4 bg-muted/50">
-          <TabsTrigger value="overview">{t('analytics.overview')}</TabsTrigger>
-          <TabsTrigger value="sales">{t('analytics.sales')}</TabsTrigger>
-          <TabsTrigger value="products">{t('analytics.products')}</TabsTrigger>
-          <TabsTrigger value="locations">{language === 'ar' ? 'المواقع' : 'Locations'}</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="overview" className="space-y-4">
-          {/* Revenue Trend Chart */}
-          <Card className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold">{t('analytics.trends')}</h3>
-              <Select value={selectedMetric} onValueChange={setSelectedMetric}>
-                <SelectTrigger className="w-40">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {metrics.map(metric => (
-                    <SelectItem key={metric.value} value={metric.value}>
-                      {metric.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={getCurrentData()}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e2ebe7" />
-                  <XAxis 
-                    dataKey={language === 'ar' ? 'day' : 'dayEn'} 
-                    stroke="#6b7b73"
-                    fontSize={12}
-                  />
-                  <YAxis stroke="#6b7b73" fontSize={12} />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: '#ffffff', 
-                      border: '1px solid #e2ebe7',
-                      borderRadius: '8px',
-                      direction: isRTL ? 'rtl' : 'ltr'
-                    }}
-                    formatter={(value, name) => [
-                      selectedMetric === 'sales' ? formatCurrency(value) : formatNumber(value),
-                      metrics.find(m => m.value === selectedMetric)?.label || name
-                    ]}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey={selectedMetric}
-                    stroke="#2d7d6b"
-                    fill="#2d7d6b"
-                    fillOpacity={0.1}
-                    strokeWidth={2}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </Card>
-
-          {/* Category Distribution */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {/* Quick Actions */}
             <Card className="p-6">
-              <h3 className="font-semibold mb-4">{language === 'ar' ? 'توزيع المبيعات بالفئات' : 'Sales by Category'}</h3>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <RechartsPieChart>
-                    <Pie
-                      data={analyticsData.categoryData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={100}
-                      paddingAngle={5}
-                      dataKey="value"
-                      nameKey={language === 'ar' ? 'name' : 'nameEn'}
-                    >
-                      {analyticsData.categoryData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip 
-                      formatter={(value) => [`${value}%`, language === 'ar' ? 'النسبة' : 'Percentage']}
-                      contentStyle={{ direction: isRTL ? 'rtl' : 'ltr' }}
-                    />
-                    <Legend 
-                      formatter={(value, entry) => entry.payload[language === 'ar' ? 'name' : 'nameEn']}
-                    />
-                  </RechartsPieChart>
-                </ResponsiveContainer>
+              <h3 className="text-lg font-semibold mb-4">{t('إجراءات سريعة')}</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <Button variant="outline" className="h-auto p-4 flex-col gap-2">
+                  <BarChart3 className="w-6 h-6" />
+                  <span className="text-sm">{t('تقرير المبيعات')}</span>
+                </Button>
+                <Button variant="outline" className="h-auto p-4 flex-col gap-2">
+                  <PieChartIcon className="w-6 h-6" />
+                  <span className="text-sm">{t('تحليل المنتجات')}</span>
+                </Button>
+                <Button variant="outline" className="h-auto p-4 flex-col gap-2">
+                  <Users className="w-6 h-6" />
+                  <span className="text-sm">{t('تحليل العملاء')}</span>
+                </Button>
+                <Button variant="outline" className="h-auto p-4 flex-col gap-2">
+                  <Target className="w-6 h-6" />
+                  <span className="text-sm">{t('تقرير الأهداف')}</span>
+                </Button>
               </div>
             </Card>
+          </TabsContent>
 
+          <TabsContent value="revenue" className="space-y-6">
             <Card className="p-6">
-              <h3 className="font-semibold mb-4">{language === 'ar' ? 'مؤشرات الأداء' : 'Performance Indicators'}</h3>
+              <h3 className="text-lg font-semibold mb-4">{t('تطور الإيرادات الشهرية')}</h3>
+              <div className="text-center py-8 text-muted-foreground">
+                <BarChart3 className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                <p>{t('الرسوم البيانية متاحة في التطبيق المحمول')}</p>
+              </div>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="products" className="space-y-6">
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">{t('أفضل المنتجات مبيعاً')}</h3>
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 bg-success/5 rounded-lg">
-                  <div className="flex items-center">
-                    <CheckCircle size={20} className="text-success mr-2" />
-                    <span className="text-sm">{language === 'ar' ? 'رضا العملاء' : 'Customer Satisfaction'}</span>
+                {analytics.topProducts.map((product, index) => (
+                  <div key={index} className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center text-sm font-bold">
+                        {index + 1}
+                      </div>
+                      <div>
+                        <p className="font-medium">{product.name}</p>
+                        <p className="text-sm text-muted-foreground">{product.quantity} وحدة</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold">{formatCurrency(product.revenue)}</p>
+                      <Badge variant="secondary">{product.margin}% هامش</Badge>
+                    </div>
                   </div>
-                  <span className="font-semibold text-success arabic-numbers">
-                    {analyticsData.summary.customerSatisfaction}/5
-                  </span>
-                </div>
-                
-                <div className="flex items-center justify-between p-3 bg-primary/5 rounded-lg">
-                  <div className="flex items-center">
-                    <Activity size={20} className="text-primary mr-2" />
-                    <span className="text-sm">{language === 'ar' ? 'متوسط قيمة الطلب' : 'Average Order Value'}</span>
-                  </div>
-                  <span className="font-semibold text-primary arabic-numbers">
-                    {formatCurrency(analyticsData.summary.averageOrderValue)}
-                  </span>
-                </div>
-                
-                <div className="flex items-center justify-between p-3 bg-warning/5 rounded-lg">
-                  <div className="flex items-center">
-                    <FileText size={20} className="text-warning mr-2" />
-                    <span className="text-sm">{language === 'ar' ? 'دقة الوصفات' : 'Prescription Accuracy'}</span>
-                  </div>
-                  <span className="font-semibold text-warning arabic-numbers">
-                    {analyticsData.summary.prescriptionAccuracy}%
-                  </span>
-                </div>
+                ))}
               </div>
             </Card>
-          </div>
-        </TabsContent>
+          </TabsContent>
 
-        <TabsContent value="sales" className="space-y-4">
-          <Card className="p-6">
-            <h3 className="font-semibold mb-4">{t('analytics.sales')} - {selectedPeriod}</h3>
-            <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={getCurrentData()}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e2ebe7" />
-                  <XAxis 
-                    dataKey={language === 'ar' ? 'day' : 'dayEn'} 
-                    stroke="#6b7b73"
-                    fontSize={12}
-                  />
-                  <YAxis stroke="#6b7b73" fontSize={12} />
-                  <Tooltip
-                    contentStyle={{ 
-                      backgroundColor: '#ffffff', 
-                      border: '1px solid #e2ebe7',
-                      borderRadius: '8px'
-                    }}
-                    formatter={(value) => [formatCurrency(value), t('analytics.revenue')]}
-                  />
-                  <Bar dataKey="sales" fill="#2d7d6b" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="products" className="space-y-4">
-          <Card className="p-6">
-            <h3 className="font-semibold mb-4">{t('analytics.topSellingProducts')}</h3>
-            <div className="space-y-4">
-              {analyticsData.topProducts.map((product, index) => (
-                <div key={product.id} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                      <span className="text-sm font-semibold text-primary arabic-numbers">{index + 1}</span>
-                    </div>
+          <TabsContent value="customers" className="space-y-6">
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">{t('تقسيم العملاء')}</h3>
+              <div className="space-y-4">
+                {analytics.customerSegments.map((segment, index) => (
+                  <div key={index} className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
                     <div>
-                      <h4 className="font-medium">{language === 'ar' ? product.name : product.nameEn}</h4>
-                      <p className="text-sm text-muted-foreground">{language === 'ar' ? product.brand : product.brandEn}</p>
+                      <p className="font-medium">{segment.segment}</p>
+                      <p className="text-sm text-muted-foreground">{segment.count} عميل</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold">{segment.percentage}%</p>
+                      <Badge variant={segment.value === 'high' ? 'default' : segment.value === 'medium' ? 'secondary' : 'outline'}>
+                        {segment.value === 'high' ? 'عالية القيمة' : segment.value === 'medium' ? 'متوسطة' : 'منخفضة'}
+                      </Badge>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="font-semibold arabic-numbers">{formatNumber(product.soldQuantity)} {language === 'ar' ? 'وحدة' : 'units'}</p>
-                    <div className="flex items-center">
-                      {product.growth > 0 ? (
-                        <TrendingUp size={12} className="text-success mr-1" />
-                      ) : (
-                        <TrendingDown size={12} className="text-destructive mr-1" />
-                      )}
-                      <span className={`text-xs arabic-numbers ${product.growth > 0 ? 'text-success' : 'text-destructive'}`}>
-                        {product.growth > 0 ? '+' : ''}{product.growth.toFixed(1)}%
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="locations" className="space-y-4">
-          <Card className="p-6">
-            <h3 className="font-semibold mb-4">{language === 'ar' ? 'أداء المواقع' : 'Location Performance'}</h3>
-            <div className="space-y-4">
-              {analyticsData.pharmacyLocations.map((location, index) => (
-                <div key={index} className="p-4 border rounded-lg">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center">
-                      <MapPin size={16} className="text-primary mr-2" />
-                      <h4 className="font-medium">{location.name}</h4>
-                    </div>
-                    <Badge variant={location.growth > 0 ? 'default' : 'secondary'}>
-                      {location.growth > 0 ? '+' : ''}{location.growth}%
-                    </Badge>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <p className="text-muted-foreground">{t('analytics.revenue')}</p>
-                      <p className="font-semibold arabic-numbers">{formatCurrency(location.sales)}</p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">{t('analytics.orders')}</p>
-                      <p className="font-semibold arabic-numbers">{formatNumber(location.orders)}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Card>
-        </TabsContent>
-      </Tabs>
-    </div>
+                ))}
+              </div>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </ScrollView>
   );
 }

@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { useLocalization, useRTL } from './services/LocalizationService';
 import { useDelivery } from './services/DeliveryService';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 
 export default function CartScreen({ cartItems, setCartItems, navigateTo }) {
   const { t, language } = useLocalization();
