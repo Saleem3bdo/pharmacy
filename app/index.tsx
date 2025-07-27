@@ -1,39 +1,39 @@
 import React, { useState } from 'react';
 import { Home, Search, ShoppingCart, MessageCircle, User, Upload, History, Settings, Package, Users, BarChart3, FileText, Clock, Languages, LogOut, MapPin, Heart } from 'lucide-react';
-import { Button } from './components/ui/button';
-import { Badge } from './components/ui/badge';
-import { Toaster } from './components/ui/sonner';
-import { NotificationProvider } from './components/services/NotificationService';
-import { InventoryProvider } from './components/services/InventoryService';
-import { DeliveryProvider } from './components/services/DeliveryService';
-import { LocalizationProvider, useLocalization, useRTL } from './components/services/LocalizationService';
-import ErrorBoundary from './components/ErrorBoundary';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Toaster } from '@/components/ui/sonner';
+import { NotificationProvider } from '@/components/services/NotificationService';
+import { InventoryProvider } from '@/components/services/InventoryService';
+import { DeliveryProvider } from '@/components/services/DeliveryService';
+import { LocalizationProvider, useLocalization, useRTL } from '@/components/services/LocalizationService';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import { toast } from 'sonner';
 
 // Import patient portal components
-import OnboardingScreen from './components/OnboardingScreen';
-import AuthScreen from './components/AuthScreen';
-import HomeScreen from './components/HomeScreen';
-import SearchScreen from './components/SearchScreen';
-import ProductDetailScreen from './components/ProductDetailScreen';
-import PrescriptionScreen from './components/PrescriptionScreen';
-import CartScreen from './components/CartScreen';
-import ConsultScreen from './components/ConsultScreen';
-import ProfileScreen from './components/ProfileScreen';
-import OrderHistoryScreen from './components/OrderHistoryScreen';
-import AddressManagement from './components/AddressManagement';
-import DeliveryTracking from './components/DeliveryTracking';
-import DonationScreen from './components/DonationScreen';
+import OnboardingScreen from '@/components/OnboardingScreen';
+import AuthScreen from '@/components/AuthScreen';
+import HomeScreen from '@/components/HomeScreen';
+import SearchScreen from '@/components/SearchScreen';
+import ProductDetailScreen from '@/components/ProductDetailScreen';
+import PrescriptionScreen from '@/components/PrescriptionScreen';
+import CartScreen from '@/components/CartScreen';
+import ConsultScreen from '@/components/ConsultScreen';
+import ProfileScreen from '@/components/ProfileScreen';
+import OrderHistoryScreen from '@/components/OrderHistoryScreen';
+import AddressManagement from '@/components/AddressManagement';
+import DeliveryTracking from '@/components/DeliveryTracking';
+import DonationScreen from '@/components/DonationScreen';
 
 // Import pharmacist portal components
-import PharmacistDashboard from './components/pharmacist/PharmacistDashboard';
-import PharmacistInventory from './components/pharmacist/PharmacistInventory';
-import PharmacistOrders from './components/pharmacist/PharmacistOrders';
-import PharmacistPrescriptions from './components/pharmacist/PharmacistPrescriptions';
-import PharmacistConsultations from './components/pharmacist/PharmacistConsultations';
-import PharmacistAnalytics from './components/pharmacist/PharmacistAnalytics';
-import PharmacistProfile from './components/pharmacist/PharmacistProfile';
-import PharmacistDrugUpload from './components/pharmacist/PharmacistDrugUpload';
+import PharmacistDashboard from '@/components/pharmacist/PharmacistDashboard';
+import PharmacistInventory from '@/components/pharmacist/PharmacistInventory';
+import PharmacistOrders from '@/components/pharmacist/PharmacistOrders';
+import PharmacistPrescriptions from '@/components/pharmacist/PharmacistPrescriptions';
+import PharmacistConsultations from '@/components/pharmacist/PharmacistConsultations';
+import PharmacistAnalytics from '@/components/pharmacist/PharmacistAnalytics';
+import PharmacistProfile from '@/components/pharmacist/PharmacistProfile';
+import PharmacistDrugUpload from '@/components/pharmacist/PharmacistDrugUpload';
 
 // Enhanced user data management with pharmacy assignments
 const createUserData = (userType, userName = null) => {
